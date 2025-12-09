@@ -1,0 +1,79 @@
+# CI Workflow for CourseVault-Free-Online-Education-Resource-Awesome-List
+
+# GitHub Actions CI Workflow (Late 2025 Standard)
+# Philosophy: Zero-Defect, High-Velocity, Future-Proof
+# Based on Apex Technical Authority Directives.
+
+name: CI
+
+# Controls when the workflow will run
+# Runs on pushes to the main branch and on pull requests targeting the main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This job runs the main CI checks
+  build_and_test:
+    name: Build and Test Awesome List
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository into the workspace
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # Sets up Python environment for the repository
+      # Uses uv for environment management as per Apex standards
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'uv'
+
+      # Installs dependencies using uv
+      # Assumes a requirements.txt or pyproject.toml managed by uv
+      - name: Install Dependencies
+        run: |
+          python -m uv pip install -r requirements.txt --frozen-lockfile
+          # If pyproject.toml is used for project structure:
+          # python -m uv pip install .[dev] --frozen-lockfile
+
+      # Runs the linter (Ruff) to enforce code quality and style
+      # As per Apex standards, Ruff is used for speed and efficiency
+      - name: Lint with Ruff
+        run: |
+          ruff check .
+          # If Ruff is configured to format as well, it would be:
+          # ruff format --check .
+
+      # Runs tests using Pytest
+      # Assumes tests are located in a 'tests/' directory or follow pytest discovery conventions
+      - name: Test with Pytest
+        run: |
+          pytest tests/
+
+      # Optional: If code coverage reporting is integrated (e.g., Codecov, Coveralls)
+      # - name: Upload Coverage Reports
+      #   uses: codecov/codecov-action@v4
+      #   env:
+      #     CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      # Example of adding a badge for successful CI build
+      # This step typically doesn't *do* anything for the build itself but is a placeholder
+      # for integrations that might update a badge status. The actual badge update
+      # is usually handled by a separate service or a commit hook.
+      - name: Notify on Success (Placeholder)
+        if: success()
+        run: echo "CI succeeded. All checks passed!"
+
+# Note: This workflow assumes the repository primarily uses Python scripts and might have associated tests.
+# For an "Awesome List", the primary "build" is often validation of links or structure, not compilation.
+# If there's a specific validation script, it should be added as a step here.
+# Example for link validation:
+# - name: Run Link Validation Script
+#   run: python scripts/validate_links.py
